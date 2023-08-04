@@ -1,0 +1,143 @@
+{
+	"info": {
+		"_postman_id": "9dce125a-7310-4ed6-b35d-38cec7fe109c",
+		"name": "micrometer-playground",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4964907"
+	},
+	"item": [
+		{
+			"name": "findAll",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/service1/api/resource1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"service1",
+						"api",
+						"resource1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create resource",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('save resource id into env', function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.collectionVariables.set(\"last_created_resource\", responseData.id);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "foo",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/service1/api/resource1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"service2",
+						"api",
+						"resource2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update resource",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "bar1",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/service1/api/resource1/{{last_created_resource}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"service2",
+						"api",
+						"resource2",
+						"{{last_created_resource}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete resource",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "bar",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/service2/api/resource2/{{last_created_resource}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"service2",
+						"api",
+						"resource2",
+						"{{last_created_resource}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "last_created_resource",
+			"value": ""
+		}
+	]
+}
