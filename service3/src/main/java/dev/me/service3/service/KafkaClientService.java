@@ -17,7 +17,7 @@ public class KafkaClientService {
 
     public KafkaClientService() {
         Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9093");
+        props.put("bootstrap.servers", getKafkaServers());
         props.put("group.id", "service3-group");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");

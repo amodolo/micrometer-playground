@@ -8,6 +8,7 @@ import jakarta.persistence.Persistence;
 import jakarta.persistence.TypedQuery;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -52,9 +53,16 @@ public class BeanRepository {
     }
 
     private <T> T execute(Function<EntityManager, T> consumer) {
-        try (EntityManagerFactory factory = Persistence.createEntityManagerFactory(null);
+
+        Map<String, Object> properties = Map.of("jakarta.persistence.jdbc.url", getJdbcUrl());
+        try (EntityManagerFactory factory = Persistence.createEntityManagerFactory(null, properties);
              EntityManager entityManager = factory.createEntityManager()) {
             return consumer.apply(entityManager);
         }
+    }
+
+    private Object getJdbcUrl() {
+        String url = System.getenv("JDBC_URL");
+        return url != null ? url : "jdbc:postgresql://localhost:5432/postgres";
     }
 }

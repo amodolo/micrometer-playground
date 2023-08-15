@@ -1,34 +1,74 @@
 version: "3"
 services:
-  service2-db:
-    container_name: service2-db
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: password
-    volumes:
-      - ./docker/service2-db/initdb:/docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
+    service1:
+        container_name: service1
+        build:
+            dockerfile: service1/Dockerfile
+        profiles:
+            - full
+        ports:
+            - "8080:8080"
+        environment:
+            SERVICE2_URL: "http://service2:8080/service2/api/resource2"
+            KAFKA_SERVERS: "kafka:9092"
+        depends_on:
+            - kafka
 
-  zookeeper:
-    container_name: zookeeper
-    image: docker.io/bitnami/zookeeper:3.7
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
+    service2:
+        container_name: service2
+        build:
+            dockerfile: service2/Dockerfile
+        profiles:
+            - full
+        environment:
+            JDBC_URL: "jdbc:postgresql://postgres:5432/postgres"
+        depends_on:
+            - postgres
 
-  kafka:
-    container_name: kafka
-    image: docker.io/bitnami/kafka:3
-    ports:
-      - "9093:9093"
-    environment:
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
-      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
-    depends_on:
-      - zookeeper
+    service3:
+        container_name: service3
+        build:
+            dockerfile: service3/Dockerfile
+        profiles:
+            - full
+        environment:
+            KAFKA_SERVERS: "kafka:9092"
+        depends_on:
+            - kafka
+
+    postgres:
+        container_name: postgres
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: password
+        volumes:
+            - ./docker/service2-db/initdb:/docker-entrypoint-initdb.d
+        ports:
+            - "5432:5432"
+
+    zookeeper:
+        container_name: zookeeper
+        image: zookeeper:latest
+        restart: always
+        environment:
+            ZOO_TICK_TIME: 2000
+        ports:
+            - "22181:2181"
+
+    kafka:
+        container_name: kafka
+        image: bitnami/kafka:latest
+        restart: always
+        depends_on:
+            - zookeeper
+        ports:
+            - "29092:29092"
+        environment:
+            KAFKA_CFG_BROKER_ID: 1
+            KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+            KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,EXTERNAL://:29092
+            KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+            KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+            KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+            KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 1

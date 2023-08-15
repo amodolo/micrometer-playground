@@ -1,15 +1,12 @@
 package dev.me.service1.controller;
 
 import dev.me.service1.service.Service1;
-import jakarta.enterprise.inject.spi.Bean;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Path("resource1")
@@ -21,12 +18,11 @@ public class Controller1 {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Map<String, Object>> findAll() {
+    public Response findAll() {
         log.info("findAll()");
-        List<Map<String, Object>> response = service.findAll();
-        log.info("there are {} resources", response.size());
-        return response;
+        return service.findAll();
     }
+
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)

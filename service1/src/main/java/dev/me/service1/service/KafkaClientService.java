@@ -17,7 +17,7 @@ public class KafkaClientService {
     @PostConstruct
     void init() {
         Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9093");
+        props.put("bootstrap.servers", getKafkaServers());
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         producer = new KafkaProducer<>(props);
@@ -38,5 +38,10 @@ public class KafkaClientService {
                 log.warn("message has not been sent", exception);
             }
         });
+    }
+
+    String getKafkaServers() {
+        String url = System.getenv("KAFKA_SERVERS");
+        return url != null ? url : "localhost:9092";
     }
 }
